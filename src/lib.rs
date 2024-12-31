@@ -56,6 +56,7 @@ struct Egui {
 }
 
 // Global variable and global functions because it's more like macroquad way
+// Dubious
 static mut EGUI: Option<Egui> = None;
 
 fn get_egui() -> &'static mut Egui {
@@ -79,7 +80,7 @@ impl Egui {
 
     fn ui<F>(&mut self, f: F)
     where
-        F: FnOnce(&mut dyn mq::RenderingBackend, &egui::Context),
+        F: FnMut(&mut dyn mq::RenderingBackend, &egui::Context),
     {
         let gl = unsafe { get_internal_gl() };
         macroquad::input::utils::repeat_all_miniquad_input(self, self.input_subscriber_id);
@@ -96,12 +97,12 @@ impl Egui {
 }
 
 /// Calculates egui ui. Must be called once per frame.
-pub fn ui<F: FnOnce(&egui::Context)>(f: F) {
+pub fn ui<F: FnMut(&egui::Context)>(mut f: F) {
     get_egui().ui(|_, ctx| f(ctx))
 }
 
 /// Configure egui without beginning or ending a frame.
-pub fn cfg<F: FnOnce(&egui::Context)>(f: F) {
+pub fn cfg<F: FnMut(&egui::Context)>(mut f: F) {
     f(get_egui().egui_mq.egui_ctx());
 }
 
